@@ -91,19 +91,28 @@ uint8_t Getting_the_password (uint8_t *pass){
  * @return : No returning.
 *************************************************************************************************************/
 void getting_patient_information(void){
+    uint8_t flag = 0; /* Flag for how many invalid ID has been entered the limit is 3.*/
     Patient_Inf_t Patient_Info; /* object of struct to store the information in it @ref Patient_Inf_t . */
     FILE *my_file = NULL;       /* Creating Pointer to FILE to creat the DataBase file to store the Data. */
     uint8_t Ret_Val = E_NOT_OK; /* variable to return the status of the function through it.  */
     my_file = fopen ("Data.txt", "a"); /* openning a file to modifiy on it and adding a new patient to our DateBase. */
+ID_again:
     printf  ("\nPlease enter the patient ID : ");
     scanf_s ("%i", &Patient_Info.ID);  /* Getting the ID of the patient and must be unique. */
     clearInputBuffer();                /* Clearing the buffer to avoid '\n'. */
     Ret_Val = Compare_IDs(Patient_Info.ID); /* Calling a helper function to check if the ID is already exist or not. */
     if (Ret_Val == E_OK){ /* The ID is already taken. */
         printf ("Sorry this ID [%i] already exist. \n", Patient_Info.ID);
-        fclose  (my_file);
+        flag++;
+        if (flag != 3){
+            goto ID_again;
+        }
+        else {
+            printf("You have reached the Limit.\n");
+        }
     }
     else { /* If the ID is available. */
+    Date_again:
        printf  ("Please enter the date (in this Format \"00/00/0000\") : ");
        fgets   (Patient_Info.date, sizeof(Patient_Info.date), stdin); /* Getting the Date of the reservation. */
        clearInputBuffer();                                            /* Clearing the buffer to avoid '\n'. */
@@ -114,7 +123,13 @@ void getting_patient_information(void){
        Ret_Val = Compare_Date_and_Slot(Patient_Info.date, Patient_Info.slot); 
        if (Ret_Val == E_OK){ /*The Slot is already taken. */
            printf("This Slot [Data : %s & Slot = %s0] already taken.\n", Patient_Info.date, Patient_Info.slot);
-           fclose  (my_file);
+           flag++;
+            if (flag != 3){
+                goto Date_again;
+            }
+            else {
+                printf("You have reached the Limit.\n");
+            }
        }
        else { /* The Slot is Free. */
            printf  ("Please enter the patient Age : ");
@@ -167,9 +182,11 @@ void Editting_patient_information(void){
  * @return : No returning.
 *************************************************************************************************************/
 void Cancel_patient_reservation(void){
+    uint8_t flag = 0; /* Flag for how many invalid ID Or Date has been entered the limit is 3.*/
     uint32_t ID = ZERO;  /* Variable to store the ID of the patient who wants to be deleted. */
     uint8_t  Ret_Val = E_NOT_OK; /* variable to return the status of the function through it.  */
     uint32_t ID_line = 1; /* variable to store in it the line which contains the specific ID. */
+ID_again:
     printf ("Please enter patient ID : ");
     scanf  ("%i", &ID); /* Getting the ID of the patient. */
     Ret_Val = Compare_IDs(ID); /* Calling a helper function to check if the ID is already exist or not. */
@@ -196,6 +213,13 @@ void Cancel_patient_reservation(void){
     }
     else{ /* The ID isn't exist. */
         printf("This Patient does not exist in our Database.\n");
+        flag++;
+        if (flag != 3){
+            goto ID_again;
+        }
+        else {
+            printf("You have reached the Limit.\n");
+        }
     }
 }
 
@@ -277,20 +301,30 @@ static uint8_t Compare_Date_and_Slot(const uint8_t Date[], const uint8_t Slot[])
  * @return : No returning.
 *************************************************************************************************************/
 static void Editing_ID(void){
+    uint8_t flag = 0; /* Flag for how many invalid ID Or Date has been entered the limit is 3.*/
     uint8_t Ret_Val = E_NOT_OK; /* variable to return the status of the function through it. */ 
     uint32_t ID_line = 1;       /* variable to store in it the line which contains the specific ID. */
     uint32_t New_ID = ZERO;     /* variable to store the new ID provided by the Admin. */
     uint32_t Old_ID = ZERO;     /* variable to store the old ID provided by the Admin. */
+OldID_again:
     printf ("Enter The old ID : ");
     scanf("%d", &Old_ID); /* Getting the old ID from the Admin. */
     Ret_Val = Compare_IDs(Old_ID); /* Calling a helper function to check if this old ID is exist in our DataBase or NOT. */
     if(Ret_Val == E_OK){ /* it exists. */
         printf("Right .. we had this ID \n");
+    NewID_again:
         printf ("Enter The New ID : ");
         scanf("%d", &New_ID); /* Getting the new ID from the Admin. */
         Ret_Val = Compare_IDs(New_ID); /* Calling a helper function to check if this new ID is exist in our DataBase or NOT. */
         if (Ret_Val == E_OK){/* if the New ID is like any of our IDs*/
             printf("This ID [%i] is Already exist \n", New_ID);
+            flag++;
+            if (flag != 4){
+                goto NewID_again;
+            }
+            else {
+                printf("You have reached the Limit.\n");
+            }
         }
         else{
             FILE* l_file ; /* Creating Pointer to FILE to open the DataBase file to get the ID. */
@@ -316,6 +350,13 @@ static void Editing_ID(void){
     }
     else { /* the old ID dosn't exist. */
         printf("Wrong ID !!\n");
+        flag++;
+        if (flag != 3){
+            goto OldID_again;
+        }
+        else {
+            printf("You have reached the Limit.\n");
+        }
     }
  }
 
@@ -325,20 +366,30 @@ static void Editing_ID(void){
  * @return : No returning.
 *************************************************************************************************************/
 static void Editing_Date_and_Time(void){
+    uint8_t flag = 0; /* Flag for how many invalid ID Or Date has been entered the limit is 3.*/
     uint8_t Ret_Val = E_NOT_OK; /* variable to return the status of the function through it. */
     uint32_t ID_line = 1;       /* variable to store in it the line which contains the specific ID. */
     uint32_t Patient_ID = ZERO; /* variable to take the ID of the patient from the Admin. */
     uint8_t New_Date[11];       /* character array to store the new date. */
     uint8_t New_Slot[5];        /* character array to store the new Slot. */
+ID_again:
     printf("Please enter the patient ID : ");
     scanf ("%i", &Patient_ID);  /* Getting the ID. */
     clearInputBuffer();
     Ret_Val = Compare_IDs(Patient_ID); /* Calling a helper function to check if this ID is exist in our DataBase or NOT. */
     if (Ret_Val != E_OK) { /* No it isn't. */
         printf("The entered ID does not match any existing record.\n");
+        flag++;
+        if (flag != 3){
+            goto ID_again;
+        }
+        else {
+            printf("You have reached the Limit.\n");
+        }
     }
     else { /* it is exist. */
         Print_Patient_Record(Patient_ID); /* Calling a helper function to print the patient information of this ID. */
+    Date_again:
         printf  ("Please enter the new Date (in this Format \"00/00/0000\") : ");
         fgets   (New_Date, sizeof(New_Date), stdin); /* Getting the new date. */
         New_Date[10] = '\0';
@@ -350,6 +401,13 @@ static void Editing_Date_and_Time(void){
         Ret_Val = Compare_Date_and_Slot(New_Date, New_Slot); /* Calling a helper function to check if the new date and slot are exist before or NOT. */
         if (Ret_Val == E_OK){ /* there are exist. */
             printf("This Slot [Data : %s & Slot = %s0] already taken.\n", New_Date, New_Slot);
+            flag++;
+            if (flag != 3){
+                goto Date_again;
+            }
+            else {
+                printf("You have reached the Limit.\n");
+            }
         }
         else { /* there are new. */ 
             FILE* l_file; /* Creating Pointer to FILE to open the DataBase file to get the ID. */
