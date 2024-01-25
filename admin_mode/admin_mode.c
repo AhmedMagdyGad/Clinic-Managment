@@ -91,7 +91,8 @@ uint8_t Getting_the_password (uint8_t *pass){
  * @return : No returning.
 *************************************************************************************************************/
 void getting_patient_information(void){
-    uint8_t flag = 0; /* Flag for how many invalid ID has been entered the limit is 3.*/
+    uint8_t ID_flag = 0; /* Flag for how many invalid ID has been entered, the limit is 3.*/
+    uint8_t Date_flag = 0; /* Flag for how many invalid Date has been entered, the limit is 3.*/
     Patient_Inf_t Patient_Info; /* object of struct to store the information in it @ref Patient_Inf_t . */
     FILE *my_file = NULL;       /* Creating Pointer to FILE to creat the DataBase file to store the Data. */
     uint8_t Ret_Val = E_NOT_OK; /* variable to return the status of the function through it.  */
@@ -103,8 +104,8 @@ ID_again:
     Ret_Val = Compare_IDs(Patient_Info.ID); /* Calling a helper function to check if the ID is already exist or not. */
     if (Ret_Val == E_OK){ /* The ID is already taken. */
         printf ("Sorry this ID [%i] already exist. \n", Patient_Info.ID);
-        flag++;
-        if (flag != 3){
+        ID_flag++;
+        if (ID_flag != 3){
             goto ID_again;
         }
         else {
@@ -123,8 +124,8 @@ ID_again:
        Ret_Val = Compare_Date_and_Slot(Patient_Info.date, Patient_Info.slot); 
        if (Ret_Val == E_OK){ /*The Slot is already taken. */
            printf("This Slot [Data : %s & Slot = %s0] already taken.\n", Patient_Info.date, Patient_Info.slot);
-           flag++;
-            if (flag != 3){
+           Date_flag++;
+            if (Date_flag != 3){
                 goto Date_again;
             }
             else {
@@ -141,7 +142,7 @@ ID_again:
            printf  ("Please enter the patient Name : ");
            fgets   (Patient_Info.name, sizeof(Patient_Info.name), stdin); /* Getting the patient's name. */
            /* Storing the information in This Format. */
-           fprintf (my_file, "ID: %i   - Date: %s - Slot: %s0 - Age: %i - Gender: %c - Name: %s\n", 
+           fprintf (my_file, "ID: %i   - Date: %s - Slot: %s0 - Age: %i - Gender: %c - Name: %s", 
                        Patient_Info.ID,  Patient_Info.date, Patient_Info.slot, Patient_Info.age, Patient_Info.Gender, Patient_Info.name);
            printf  ("\nDone, the patient has been successfully added to the DataBase. \n");
            fclose  (my_file); /* Closing the file after finishing. */
@@ -182,7 +183,7 @@ void Editting_patient_information(void){
  * @return : No returning.
 *************************************************************************************************************/
 void Cancel_patient_reservation(void){
-    uint8_t flag = 0; /* Flag for how many invalid ID Or Date has been entered the limit is 3.*/
+    uint8_t flag = 0; /* Flag for how many invalid ID has been entered, the limit is 3.*/
     uint32_t ID = ZERO;  /* Variable to store the ID of the patient who wants to be deleted. */
     uint8_t  Ret_Val = E_NOT_OK; /* variable to return the status of the function through it.  */
     uint32_t ID_line = 1; /* variable to store in it the line which contains the specific ID. */
@@ -301,7 +302,8 @@ static uint8_t Compare_Date_and_Slot(const uint8_t Date[], const uint8_t Slot[])
  * @return : No returning.
 *************************************************************************************************************/
 static void Editing_ID(void){
-    uint8_t flag = 0; /* Flag for how many invalid ID Or Date has been entered the limit is 3.*/
+    uint8_t OldID_flag = 0; /* Flag for how many invalid Old IDs has been entered, the limit is 3.*/
+    uint8_t NewID_flag = 0; /* Flag for how many invalid New IDs has been entered, the limit is 3.*/
     uint8_t Ret_Val = E_NOT_OK; /* variable to return the status of the function through it. */ 
     uint32_t ID_line = 1;       /* variable to store in it the line which contains the specific ID. */
     uint32_t New_ID = ZERO;     /* variable to store the new ID provided by the Admin. */
@@ -318,8 +320,8 @@ OldID_again:
         Ret_Val = Compare_IDs(New_ID); /* Calling a helper function to check if this new ID is exist in our DataBase or NOT. */
         if (Ret_Val == E_OK){/* if the New ID is like any of our IDs*/
             printf("This ID [%i] is Already exist \n", New_ID);
-            flag++;
-            if (flag != 4){
+            NewID_flag++;
+            if (NewID_flag != 3){
                 goto NewID_again;
             }
             else {
@@ -350,8 +352,8 @@ OldID_again:
     }
     else { /* the old ID dosn't exist. */
         printf("Wrong ID !!\n");
-        flag++;
-        if (flag != 3){
+        OldID_flag++;
+        if (OldID_flag != 3){
             goto OldID_again;
         }
         else {
@@ -366,7 +368,8 @@ OldID_again:
  * @return : No returning.
 *************************************************************************************************************/
 static void Editing_Date_and_Time(void){
-    uint8_t flag = 0; /* Flag for how many invalid ID Or Date has been entered the limit is 3.*/
+    uint8_t ID_flag = 0; /* Flag for how many invalid ID has been entered, the limit is 3.*/
+    uint8_t Date_flag = 0; /* Flag for how many invalid Date has been entered, the limit is 3.*/
     uint8_t Ret_Val = E_NOT_OK; /* variable to return the status of the function through it. */
     uint32_t ID_line = 1;       /* variable to store in it the line which contains the specific ID. */
     uint32_t Patient_ID = ZERO; /* variable to take the ID of the patient from the Admin. */
@@ -379,8 +382,8 @@ ID_again:
     Ret_Val = Compare_IDs(Patient_ID); /* Calling a helper function to check if this ID is exist in our DataBase or NOT. */
     if (Ret_Val != E_OK) { /* No it isn't. */
         printf("The entered ID does not match any existing record.\n");
-        flag++;
-        if (flag != 3){
+        ID_flag++;
+        if (ID_flag != 3){
             goto ID_again;
         }
         else {
@@ -401,8 +404,8 @@ ID_again:
         Ret_Val = Compare_Date_and_Slot(New_Date, New_Slot); /* Calling a helper function to check if the new date and slot are exist before or NOT. */
         if (Ret_Val == E_OK){ /* there are exist. */
             printf("This Slot [Data : %s & Slot = %s0] already taken.\n", New_Date, New_Slot);
-            flag++;
-            if (flag != 3){
+            Date_flag++;
+            if (Date_flag != 3){
                 goto Date_again;
             }
             else {
